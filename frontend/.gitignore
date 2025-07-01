@@ -21,3 +21,6 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+icacls .gitignore /grant "%VedaK27%:F"
+

@@ -2,6 +2,7 @@ import React from 'react';
 import { Home, Package, BarChart3 } from 'lucide-react';
 import '../styles/App.css';
 
+
 const Sidebar = ({ isOpen, toggleSidebar, currentPage, setCurrentPage }) => {
   const navItems = [
     { id: 'dashboard', icon: Home, label: 'Dashboard' },

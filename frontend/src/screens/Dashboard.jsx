@@ -171,27 +171,6 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      {/* Additional Insights Section */}
-      <Card title="AI-Powered Recommendations & Action Items">
-        <div className="recommendations-grid">
-          <div className="recommendation-card">
-            <h4>🎯 Priority Actions</h4>
-            <ul>
-              <li>Contact 12 high-risk customers proactively about their orders</li>
-              <li>Review product descriptions for items with "Not as Described" returns</li>
-              <li>Implement enhanced quality checks for defective product categories</li>
-            </ul>
-          </div>
-          <div className="recommendation-card">
-            <h4>📈 Predicted Impact</h4>
-            <ul>
-              <li>Potential 15% reduction in return rate with targeted interventions</li>
-              <li>Estimated $25,000 savings in return processing costs this quarter</li>
-              <li>Improved customer satisfaction score by addressing root causes</li>
-            </ul>
-          </div>
-        </div>
-      </Card>
     </div>
   );
 };
