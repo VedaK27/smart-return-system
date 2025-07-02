@@ -1,0 +1,1 @@
+Link to Collab notebook of Return rate Prediction Model : -> https://colab.research.google.com/drive/1tNXYQLvywOXgJG1IMsR4ZVRNsoNcjh_U
