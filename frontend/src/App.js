@@ -1,102 +1,33 @@
-// App.jsx
 import React, { useState } from 'react';
-import Sidebar from '../src/components/Sidebar';
-import Navbar from '../src/components/Navbar';
- import Dashboard from '../src/screens/Dashboard';
- import Orders from '../src/screens/Orders';
-import ReturnsAnalytics from '../src/screens/ReturnsAnalytics';
-import './styles/App.css';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-const App = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState('dashboard');
+import Login from './screens/Login';
+import Signup from './screens/Signup';
+import Home from './screens/Home';
+import ProductDetail from './screens/ProductDetail';
+import OrderProduct from './screens/OrderProduct';
+import Orders from './screens/Orders';
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'dashboard': return <Dashboard />;
-      case 'orders': return <Orders />;
-      case 'analytics': return <ReturnsAnalytics />;
-      default: return <Dashboard />;
-    }
-  };
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
-    <div className="app-container">
-      <Sidebar 
-        isOpen={sidebarOpen} 
-        toggleSidebar={toggleSidebar}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-      />
-      <div className="main-content">
-        <Navbar toggleSidebar={toggleSidebar} />
-        <main className="page-content">
-          {renderPage()}
-        </main>
-
-        
-      </div>
-      
-    </div>
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            isLoggedIn ? <Navigate to="/home" /> : <Login onLogin={() => setIsLoggedIn(true)} />
+          }
+        />
+        <Route path="/signup" element={<Signup onSignup={() => setIsLoggedIn(true)} />} />
+        <Route path="/home" element={isLoggedIn ? <Home /> : <Navigate to="/" />} />
+        <Route path="/product/:id" element={isLoggedIn ? <ProductDetail /> : <Navigate to="/" />} />
+        <Route path="/order/:id" element={isLoggedIn ? <OrderProduct /> : <Navigate to="/" />} />
+        <Route path="/orders" element={isLoggedIn ? <Orders /> : <Navigate to="/" />} />
+      </Routes>
+    </Router>
   );
-};
+}
 
 export default App;
-
-
-// import React, { useState } from 'react';
-// import './styles/App.css';
-
-// // Import your page components
-// import Dashboard from '../src/screens/Dashboard';
-// import Orders from '../src/screens/Orders';
-// import ReturnsAnalytics from '../src/screens/ReturnsAnalytics';
-
-// const App = () => {
-//   const [currentPage, setCurrentPage] = useState('dashboard');
-
-//   const navigation = [
-//     { id: 'dashboard', name: 'Dashboard', component: Dashboard },
-//     { id: 'orders', name: 'Orders Management', component: Orders },
-//     { id: 'analytics', name: 'Returns Analytics', component: ReturnsAnalytics }
-//   ];
-
-//   const currentComponent = navigation.find(nav => nav.id === currentPage)?.component || Dashboard;
-//   const CurrentPageComponent = currentComponent;
-
-//   return (
-//     <div className="App">
-//       {/* Navigation Bar */}
-//       <nav className="navbar">
-//         <div className="navbar-container">
-//           <div className="navbar-brand">
-//             📊 ReturnGuard Analytics
-//           </div>
-//           <ul className="navbar-nav">
-//             {navigation.map(nav => (
-//               <li key={nav.id}>
-//                 <button
-//                   className={`nav-link ${currentPage === nav.id ? 'active' : ''}`}
-//                   onClick={() => setCurrentPage(nav.id)}
-//                 >
-//                   {nav.name}
-//                 </button>
-//               </li>
-//             ))}
-//           </ul>
-//         </div>
-//       </nav>
-
-//       {/* Main Content */}
-//       <main>
-//         <CurrentPageComponent />
-//       </main>
-//     </div>
-//   );
-// };
-
-// export default App;

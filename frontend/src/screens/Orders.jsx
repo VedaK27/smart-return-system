@@ -1,67 +1,94 @@
 import React, { useState, useEffect } from 'react';
-import Card from '../components/Card';
-import '../styles/App.css' ;
-import LoadingSpinner from '../components/LoadingSpinner';
+import { Link } from 'react-router-dom';
+import '../styles/Orders.css';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      setLoading(true);
-      await new Promise(res => setTimeout(res, 500));
-      setOrders([
-        { id: 'ORD-001', product: 'iPhone 15 Pro', customer: 'John Doe', price: 999, distance: 25, risk: 85, status: 'predicted_return' },
-        { id: 'ORD-002', product: 'Samsung TV 65"', customer: 'Jane Smith', price: 1299, distance: 45, risk: 12, status: 'low_risk' },
-        { id: 'ORD-003', product: 'Nike Air Max', customer: 'Bob Johnson', price: 149, distance: 8, risk: 78, status: 'predicted_return' },
-      ]);
-      setLoading(false);
-    };
-    fetchOrders();
+    const savedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+    setOrders(savedOrders);
   }, []);
 
-  return (
-    <div className="page-container">
-      <h2 className="page-title">Orders Overview</h2>
-      <Card>
-        {loading ? (
-          <LoadingSpinner />
-        ) : (
-          <table className="orders-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Product</th>
-                <th>Customer</th>
-                <th>Price</th>
-                <th>Distance</th>
-                <th>Risk</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map(order => (
-                <tr key={order.id}>
-                  <td>{order.id}</td>
-                  <td>{order.product}</td>
-                  <td>{order.customer}</td>
-                  <td>${order.price}</td>
-                  <td>{order.distance} km</td>
-                  <td>{order.risk}%</td>
-                  <td>
-                    <span className={`status-badge ${order.status === 'predicted_return' ? 'status-return' : 'status-low'}`}>
-                        <span className="status-dot"></span>
-                        {order.status.replace('_', ' ')}
-                    </span>
-                    </td>
+  const handleReturnProduct = (orderId) => {
+    const updatedOrders = orders.map(order =>
+      order.id === orderId
+        ? { ...order, status: 'returned' }
+        : order
+    );
+    setOrders(updatedOrders);
+    localStorage.setItem('orders', JSON.stringify(updatedOrders));
+    alert('Product return request submitted successfully!');
+  };
 
-                </tr>
-              ))}
-            </tbody>
-          </table>
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  return (
+    <div className="orders-container">
+      <header className="orders-header">
+        <Link to="/" className="back-link">← Back to Home</Link>
+        <h1>My Orders</h1>
+      </header>
+
+      <main className="orders-content">
+        {orders.length === 0 ? (
+          <div className="no-orders">
+            <h2>No Orders Yet</h2>
+            <p>You haven't placed any orders yet.</p>
+            <Link to="/" className="shop-now-btn">Start Shopping</Link>
+          </div>
+        ) : (
+          <div className="orders-list">
+            {orders.map(order => (
+              <div key={order.id} className="order-card">
+                <div className="order-header">
+                  <div className="order-info">
+                    <h3>Order #{order.id}</h3>
+                    <p className="order-date">Placed on {formatDate(order.orderDate)}</p>
+                  </div>
+                  <div className={`order-status ${order.status}`}>
+                    {order.status === 'ordered' ? 'Ordered' : 'Returned'}
+                  </div>
+                </div>
+
+                <div className="order-details">
+                  <div className="product-info">
+                    <h4>{order.productName}</h4>
+                    <p className="product-id">Product ID: {order.productId}</p>
+                    <p className="product-price">Price: ₹{order.price}</p>
+                  </div>
+
+                  <div className="delivery-info">
+                    <p><strong>Delivery Address:</strong> {order.address}</p>
+                    <p><strong>Mobile:</strong> {order.mobile}</p>
+                  </div>
+
+                  {order.status === 'ordered' && (
+                    <button
+                      onClick={() => handleReturnProduct(order.id)}
+                      className="return-btn"
+                    >
+                      Return Product
+                    </button>
+                  )}
+
+                  {order.status === 'returned' && (
+                    <div className="return-status">
+                      <span>Return request submitted</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         )}
-      </Card>
+      </main>
     </div>
   );
 };

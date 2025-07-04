@@ -1,0 +1,95 @@
+.orders-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.orders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.back-link {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
+}
+
+.orders-content {
+  margin-top: 30px;
+}
+
+.order-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: #f9f9f9;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.order-status {
+  font-weight: bold;
+  padding: 6px 10px;
+  border-radius: 5px;
+  background-color: #e0e0e0;
+}
+
+.order-status.ordered {
+  color: green;
+}
+
+.order-status.returned {
+  color: red;
+}
+
+.order-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.product-info,
+.delivery-info {
+  margin-bottom: 10px;
+}
+
+.return-btn {
+  padding: 8px 12px;
+  background-color: #e63946;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.return-btn:hover {
+  background-color: #d62828;
+}
+
+.return-status {
+  color: #555;
+  font-style: italic;
+}
+
+.no-orders {
+  text-align: center;
+  padding: 40px;
+}
+
+.shop-now-btn {
+  margin-top: 20px;
+  display: inline-block;
+  background-color: #3b82f6;
+  color: white;
+  padding: 10px 16px;
+  text-decoration: none;
+  border-radius: 5px;
+}
