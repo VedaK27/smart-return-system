@@ -57,7 +57,7 @@ const Dashboard = () => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1 className="page-title">ReturnGuard Dashboard</h1>
+        <h1 className="page-title">ReturnIQ</h1>
         <p className="page-description">
           Get comprehensive insights into your e-commerce return patterns with AI-powered predictions. 
           Monitor key metrics, identify trends, and make data-driven decisions to reduce return rates 
@@ -164,8 +164,8 @@ const Dashboard = () => {
             <h4>Key Insights:</h4>
             <ul>
               <li><strong>Low Risk (0-40%):</strong> 77 orders with minimal return probability</li>
-              <li><strong>Medium Risk (41-60%):</strong> 28 orders requiring monitoring</li>
-              <li><strong>High Risk (61-100%):</strong> 30 orders needing immediate intervention</li>
+              <li><strong>Medium Risk (41-55%):</strong> 28 orders requiring monitoring</li>
+              <li><strong>High Risk (66-100%):</strong> 30 orders needing immediate intervention</li>
             </ul>
           </div>
         </Card>

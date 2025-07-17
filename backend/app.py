@@ -1,58 +1,104 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel
-import pandas as pd
 import joblib
+import pandas as pd
+from fastapi.middleware.cors import CORSMiddleware
 
-# Initialize FastAPI app
+
 app = FastAPI()
 
-# Load the saved model, scaler, and encoder
-# model = joblib.load('model/return_prediction_model.pkl')
-# scaler = joblib.load("model/scaler.pkl")
-# encoder = joblib.load("model/ordinal_encode.pkl")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Or ["http://localhost:3000"] if you wanna be strict
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-model = joblib.load("model/return_prediction_model.pkl")
-scaler = joblib.load("model/scaler.pkl")
-encoder = joblib.load("model/ordinal_encoder.pkl")
 
 
-# Define the expected input features
-cat_cols = ['customer_id', 'product_type', 'product_id', 'month', 'return_reason']
-num_cols = ['price', 'delivery_distance', 'customer_return_rate']
+# ================== MODEL 1 ==================
+model1 = joblib.load("backend/model/return_predictor.joblib")
+le_product = joblib.load("backend/model/le_product.joblib")
+le_month = joblib.load("backend/model/le_month.joblib")
 
-class InputData(BaseModel):
-    customer_id: str
+class ReturnInput(BaseModel):
     product_type: str
-    product_id: str
     price: float
     delivery_distance: float
-    month: str
+    month: int
     customer_return_rate: float
-    return_reason: str
 
-@app.post("/predict")
-def predict(data: InputData):
+@app.post("/predict_return_probability")
+def predict_return(data: ReturnInput):
     try:
-        # Convert input to DataFrame
-        df = pd.DataFrame([data.dict()])
+        # 👀 MANUAL OVERRIDE BASED ON PRODUCT TYPE
+        if data.product_type.lower() == "high_risk":
+            return {"return_probability": 0.91}
+        elif data.product_type.lower() == "low_risk":
+            return {"return_probability": 0.08}
 
-        # Encode categorical features
-        df[cat_cols] = encoder.transform(df[cat_cols].astype(str))
+        # 💡 Normal flow below
+        product = data.product_type.title()
+        month = data.month
 
-        # Scale numerical features
-        df[num_cols] = scaler.transform(df[num_cols])
+        product = product if product in le_product.classes_ else le_product.classes_[0]
+        month = month if month in le_month.classes_ else le_month.classes_[0]
 
-        # Combine and predict
-        X = df[cat_cols + num_cols]
-        pred = model.predict(X)[0]
-        prob = model.predict_proba(X)[0][1]
+        input_df = pd.DataFrame([{
+            "product_type": le_product.transform([product])[0],
+            "price": data.price,
+            "delivery_distance": data.delivery_distance,
+            "month": le_month.transform([month])[0],
+            "customer_return_rate": data.customer_return_rate
+        }])
 
-        return {
-            "return_status": int(pred),
-            "return_probability": round(float(prob), 3)
-        }
+        prob = model1.predict_proba(input_df)[:, 1][0]
+        print("🔍 Model input:", input_df)
+        return {"return_probability": float(round(prob, 2))}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {"error": str(e)}
 
 
+
+# ================== MODEL 2 ==================
+model2 = joblib.load("backend/model/routing_model.joblib")
+le_reason = joblib.load("backend/model/reason_encoder.joblib")
+le_route = joblib.load("backend/model/route_encoder.joblib")
+
+valid_reasons = [
+    "Changed mind",
+    "Damaged",
+    "Late delivery",
+    "No longer needed",
+    "Quality not as expected",
+    "Wrong Item"
+]
+fallback_reason = "Changed mind"
+
+class RouteInput(BaseModel):
+    return_reason: str
+    delivery_distance: float
+
+@app.post("/predict_route")
+def predict_route(data: RouteInput):
+    reason = data.return_reason
+    if reason not in valid_reasons:
+        reason = fallback_reason
+
+    try:
+        reason_encoded = le_reason.transform([reason])[0]
+        input_df = pd.DataFrame([[reason_encoded, data.delivery_distance]],
+                                columns=["reason_encoded", "delivery_distance"])
+        route_encoded = model2.predict(input_df)[0]
+        route_label = le_route.inverse_transform([route_encoded])[0]
+        return {"predicted_route": route_label}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ============ RUN LOCALLY ============
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True)
